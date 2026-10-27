@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal - HealthWatch AI Surveillance & Hospital Resource Dashboard</title>
+  <meta name="description" content="Administrative control center for hospital beds, clinical admissions, outbreak alerts, pharmacy inventory, and audit logs.">
+
+  <!-- Bootstrap 5 CSS & Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <!-- Core Design System -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-icon" style="background: linear-gradient(135deg, #dc2626, #ea580c);">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <div>
+          <div class="text-white fw-bold" style="font-size: 1.05rem;">Rural Care Connect</div>
+          <div class="small text-danger fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">ADMIN CONTROL CENTER</div>
+        </div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="nav-section-title">Overview</div>
+        <a href="#section-overview" class="sidebar-link active" data-section="overview">
+          <i class="bi bi-speedometer2"></i> Executive Dashboard
+        </a>
+
+        <div class="nav-section-title mt-3">Primary Care & Resources</div>
+        <a href="#section-hospitals" class="sidebar-link" data-section="hospitals">
+          <i class="bi bi-hospital"></i> PHC & Health Centres
+        </a>
+        <a href="#section-services" class="sidebar-link" data-section="services">
+          <i class="bi bi-currency-rupee text-success"></i> Affordable Service Catalog
+        </a>
+        <a href="#section-villagedrives" class="sidebar-link" data-section="villagedrives">
+          <i class="bi bi-shield-shaded text-primary"></i> Village Vaccination Drives
+        </a>
+        <a href="#section-ashareq" class="sidebar-link" data-section="ashareq">
+          <i class="bi bi-chat-heart-fill text-warning"></i> ASHA Field Requests
+        </a>
+        <a href="#section-cases" class="sidebar-link" data-section="cases">
+          <i class="bi bi-person-plus-fill"></i> Patient Admissions
+        </a>
+        <a href="#section-diseases" class="sidebar-link" data-section="diseases">
+          <i class="bi bi-virus"></i> Disease Catalog
+        </a>
+        <a href="#section-alerts" class="sidebar-link" data-section="alerts">
+          <i class="bi bi-bell-fill"></i> Area Outbreak Alerts
+        </a>
+        <a href="#section-medicines" class="sidebar-link" data-section="medicines">
+          <i class="bi bi-capsule"></i> PHC Pharmacy Stocks
+        </a>
+        <a href="#section-vaccination" class="sidebar-link" data-section="vaccination">
+          <i class="bi bi-graph-up"></i> State Vaccine Coverage
+        </a>
+
+        <div class="nav-section-title mt-3">Governance & Administration</div>
+        <a href="#section-complaints" class="sidebar-link" data-section="complaints">
+          <i class="bi bi-chat-left-dots-fill"></i> Review Complaints
+        </a>
+        <a href="#section-users" class="sidebar-link" data-section="users">
+          <i class="bi bi-people-fill"></i> User Accounts & RBAC
+        </a>
+        <a href="#section-audit" class="sidebar-link" data-section="audit">
+          <i class="bi bi-journal-text"></i> Audit Log Trail
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="d-flex align-items-center justify-content-between text-muted small">
+          <span class="text-success"><i class="bi bi-shield-check me-1"></i> Admin Privileges</span>
+          <span class="badge bg-danger-subtle text-danger font-monospace">MySQL 8 ACID</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Topbar -->
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-light d-lg-none p-1 px-2 border" id="btn-toggle-sidebar" aria-label="Toggle navigation">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div>
+            <h1 class="h5 mb-0 fw-bold">Administrative Command Center</h1>
+            <small class="text-muted">Full CRUD permissions, stored procedure execution, and surveillance governance</small>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 gap-sm-3">
+          <a href="/public/dashboard.html" class="btn btn-light btn-sm border d-none d-md-inline-flex align-items-center fw-medium text-secondary" title="Switch to Public Viewer View">
+            <i class="bi bi-box-arrow-up-right me-1"></i> Public Portal
+          </a>
+
+          <span class="badge-soft-danger d-none d-sm-inline-flex align-items-center">
+            <i class="bi bi-person-fill-gear me-1"></i> Admin: <span id="admin-username" class="ms-1 fw-bold">admin</span>
+          </span>
+
+          <button class="btn btn-outline-danger btn-sm px-3 fw-medium" id="btn-logout" title="Sign out of HealthWatch AI">
+            <i class="bi bi-box-arrow-right me-1"></i> Logout
+          </button>
+        </div>
+      </header>
+
+      <!-- App Content Container -->
+      <div class="app-content">
+
+        <!-- ====================================================================
+             SECTION 1: EXECUTIVE DASHBOARD
+             ==================================================================== -->
+        <section id="section-overview" class="portal-section">
+          <!-- Admin Status Banner -->
+          <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-3 p-3 mb-4 rounded-3" role="alert">
+            <div class="fs-3 text-danger"><i class="bi bi-shield-fill-check"></i></div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">Admin Mode Active (Real-Time Database Sync)</div>
+              <div class="small text-muted">
+                Authorized for transactional operations: patient admissions via <code>sp_admit_patient</code>, discharges via <code>sp_close_case</code>, bed allocation, and master record management.
+              </div>
+            </div>
+            <div class="d-none d-lg-block">
+              <button class="btn btn-danger btn-sm px-3 fw-semibold" data-quick-action="admit">
+                <i class="bi bi-person-plus me-1"></i> Admit Patient
+              </button>
+            </div>
+          </div>
+
+          <!-- Real KPI Summary Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrapper kpi-blue">
+                  <i class="bi bi-buildings"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold">Hospitals</div>
+                  <div class="h4 mb-0 fw-bold" id="kpi-admin-hospitals">--</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrapper kpi-green">
+                  <i class="bi bi-clipboard2-pulse"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold">Total Cases</div>
+                  <div class="h4 mb-0 fw-bold" id="kpi-admin-cases">--</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrapper kpi-purple">
+                  <i class="bi bi-hospital"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold">Active Admissions</div>
+                  <div class="h4 mb-0 fw-bold text-primary" id="kpi-admin-activecases">--</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrapper kpi-red">
+                  <i class="bi bi-exclamation-octagon"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold">Active Alerts</div>
+                  <div class="h4 mb-0 fw-bold text-danger" id="kpi-admin-alerts">--</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrapper kpi-amber">
+                  <i class="bi bi-capsule-pill"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold">Low-Stock Meds</div>
+                  <div class="h4 mb-0 fw-bold text-warning" id="kpi-admin-lowstock">--</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrapper kpi-blue">
+                  <i class="bi bi-heart-pulse"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold">Avail / Total Beds</div>
+                  <div class="h5 mb-0 fw-bold font-monospace" id="kpi-admin-beds">-- / --</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrapper kpi-amber">
+                  <i class="bi bi-chat-left-dots"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold">Pending Grievances</div>
+                  <div class="h4 mb-0 fw-bold text-warning" id="kpi-admin-complaints">--</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrapper kpi-purple">
+                  <i class="bi bi-people"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold">System Users</div>
+                  <div class="h4 mb-0 fw-bold" id="kpi-admin-users">--</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Launch Bar -->
+          <div class="hw-card mb-4">
+            <div class="hw-card-body p-3">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <span class="text-muted small fw-bold text-uppercase"><i class="bi bi-lightning-charge-fill text-warning me-1"></i>Quick Actions</span>
+                <div class="d-flex flex-wrap gap-2">
+                  <button class="btn btn-sm btn-primary fw-semibold" data-quick-action="admit">
+                    <i class="bi bi-person-plus me-1"></i> Admit Patient (sp_admit_patient)
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary fw-semibold" data-quick-action="hospital">
+                    <i class="bi bi-building-add me-1"></i> Add Hospital
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger fw-semibold" data-quick-action="alert">
+                    <i class="bi bi-bell me-1"></i> Issue Alert
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary fw-semibold" data-quick-action="medicine">
+                    <i class="bi bi-plus-circle me-1"></i> Add Medicine
+                  </button>
+                  <button class="btn btn-sm btn-outline-dark fw-semibold" data-quick-action="user">
+                    <i class="bi bi-person-gear me-1"></i> Create User
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Community Feedback & Doctor Presence Flags Widget -->
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-xl-6">
+              <div class="hw-card h-100 mb-0">
+                <div class="hw-card-header d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-x-fill text-danger fs-5"></i>
+                    <div>
+                      <h2 class="h6 mb-0 fw-bold">Low Doctor Presence Flags (&lt; 50%)</h2>
+                      <small class="text-muted">Crowd-sourced villager confirmations (14d window, &ge; 5 reports)</small>
+                    </div>
+                  </div>
+                  <button class="btn btn-sm btn-outline-secondary" onclick="loadFeedbackAdminFlags()" title="Refresh flags">
+                    <i class="bi bi-arrow-clockwise"></i>
+                  </button>
+                </div>
+                <div class="hw-card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>PHC Name</th>
+                          <th>14d Reports</th>
+                          <th>Doctor Present %</th>
+                          <th>Medicine Avail %</th>
+                        </tr>
+                      </thead>
+                      <tbody id="admin-flags-low-doctor-tbody">
+                        <tr><td colspan="4" class="text-center py-3 text-muted">Checking feedback flags...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+              <div class="hw-card h-100 mb-0">
+                <div class="hw-card-header d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-octagon-fill text-warning fs-5"></i>
+                    <div>
+                      <h2 class="h6 mb-0 fw-bold">Doctor-Absent Trigger Alerts</h2>
+                      <small class="text-muted">Triggered automatically by <code>trg_feedback_doctor_absent</code></small>
+                    </div>
+                  </div>
+                  <span class="badge bg-danger" id="admin-flags-alert-count">0</span>
+                </div>
+                <div class="hw-card-body p-0">
+                  <div class="list-group list-group-flush" id="admin-flags-alerts-list">
+                    <div class="p-3 text-center text-muted">Loading feedback alerts...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Two-Column Overview: Recent Admissions & Active Alerts -->
+          <div class="row g-4 mb-4">
+            <div class="col-12 col-xl-7">
+              <div class="hw-card h-100 mb-0">
+                <div class="hw-card-header">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-clipboard2-pulse text-primary fs-5"></i>
+                    <h2 class="h6 mb-0 fw-bold">Recent Patient Admissions</h2>
+                  </div>
+                  <a href="#section-cases" class="btn btn-light btn-sm border text-secondary fw-medium" data-section="cases">
+                    View All <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-custom">
+                    <thead>
+                      <tr>
+                        <th>Case #</th>
+                        <th>Disease</th>
+                        <th>Hospital</th>
+                        <th>Demographics</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="overview-recent-cases-body">
+                      <tr><td colspan="6" class="text-center text-muted py-3">Loading recent admissions...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+              <div class="hw-card h-100 mb-0">
+                <div class="hw-card-header">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-octagon text-danger fs-5"></i>
+                    <h2 class="h6 mb-0 fw-bold">Active Outbreak Alerts</h2>
+                  </div>
+                  <a href="#section-alerts" class="btn btn-light btn-sm border text-secondary fw-medium" data-section="alerts">
+                    Manage <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+                </div>
+                <div class="hw-card-body p-3" id="overview-active-alerts-container">
+                  <div class="text-center text-muted py-3 small">Loading active alerts...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Audit Trail Snippet -->
+          <div class="hw-card">
+            <div class="hw-card-header">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-journal-text text-secondary fs-5"></i>
+                <h2 class="h6 mb-0 fw-bold">Recent System Audit Trail</h2>
+              </div>
+              <a href="#section-audit" class="btn btn-light btn-sm border text-secondary fw-medium" data-section="audit">
+                Full Audit Trail <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                    <th>Entity Table</th>
+                    <th>Modification Details</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-audit-snippet-body">
+                  <tr><td colspan="4" class="text-center text-muted py-3">Loading system audit trail...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 2: PRIMARY HEALTH CENTRES (PHC) & FACILITIES
+             ==================================================================== -->
+        <section id="section-hospitals" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Primary Health Centres (PHC) & Facilities</h2>
+              <p class="text-muted small mb-0">Manage PHC, CHC, and Sub-centre facilities, doctor duty rosters, ambulance readiness, and beds.</p>
+            </div>
+            <button class="btn btn-primary fw-semibold" onclick="openHospitalModal('create')">
+              <i class="bi bi-plus-circle me-1"></i> Add PHC Facility
+            </button>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div class="flex-grow-1" style="min-width: 220px;">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0" id="hospital-search-input" placeholder="Search PHC name, district, or village...">
+              </div>
+            </div>
+            <div style="min-width: 160px;">
+              <select class="form-select" id="hospital-filter-type">
+                <option value="">All Facility Types</option>
+                <option value="PHC">PHC</option>
+                <option value="CHC">CHC</option>
+                <option value="Sub-centre">Sub-centre</option>
+              </select>
+            </div>
+            <div style="min-width: 180px;">
+              <select class="form-select" id="hospital-filter-state">
+                <option value="">All States</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Bihar">Bihar</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Hospitals Data Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Facility Name</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Beds Free / Total</th>
+                    <th>Doctor</th>
+                    <th>Ambulance</th>
+                    <th>Hours</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="hospitals-table-body">
+                  <tr><td colspan="10" class="text-center text-muted py-4">Loading PHCs...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 2B: AFFORDABLE SERVICE CATALOG (Service_Cost)
+             ==================================================================== -->
+        <section id="section-services" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Affordable Healthcare Services Catalog</h2>
+              <p class="text-muted small mb-0">Manage services, cost in INR, government free schemes (Ayushman Bharat, JSY, Jan Aushadhi), and subsidies.</p>
+            </div>
+            <button class="btn btn-success fw-semibold" onclick="openServiceModal('create')">
+              <i class="bi bi-plus-circle me-1"></i> Add Service Offering
+            </button>
+          </div>
+
+          <!-- Services Data Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Service Name</th>
+                    <th>Category</th>
+                    <th>Linked PHC</th>
+                    <th>Cost (₹)</th>
+                    <th>Govt Scheme / Notes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="services-table-body">
+                  <tr><td colspan="7" class="text-center text-muted py-4">Loading service catalog...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 2C: VILLAGE VACCINATION DRIVES (Vaccination_Drive)
+             ==================================================================== -->
+        <section id="section-villagedrives" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Village Vaccination Drives (Universal Immunization)</h2>
+              <p class="text-muted small mb-0">Schedule village vaccination camps. Database trigger (<code>trg_vaccine_drive_stockout</code>) auto-fires alert if doses hit 0.</p>
+            </div>
+            <button class="btn btn-primary fw-semibold" onclick="openVillageDriveModal('create')">
+              <i class="bi bi-plus-circle me-1"></i> Schedule Village Drive
+            </button>
+          </div>
+
+          <!-- Drives Data Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>Drive #</th>
+                    <th>Vaccine</th>
+                    <th>Village & District</th>
+                    <th>Linked PHC</th>
+                    <th>Date & Time</th>
+                    <th>Target Beneficiaries</th>
+                    <th>Doses Left</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="villagedrives-table-body">
+                  <tr><td colspan="9" class="text-center text-muted py-4">Loading village vaccination drives...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 2D: ASHA FIELD REQUESTS (ASHA_Request)
+             ==================================================================== -->
+        <section id="section-ashareq" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">ASHA Grassroots Field Requests</h2>
+              <p class="text-muted small mb-0">Incoming field alerts from ASHA workers for emergency 102/108 transport, medicine replenishment, and village doctor visits.</p>
+            </div>
+            <button class="btn btn-light btn-sm border fw-medium" onclick="loadAshaRequests()">
+              <i class="bi bi-arrow-clockwise me-1"></i> Refresh Requests
+            </button>
+          </div>
+
+          <!-- ASHA Requests Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>Req #</th>
+                    <th>ASHA Worker</th>
+                    <th>Village</th>
+                    <th>Request Type</th>
+                    <th>Urgency</th>
+                    <th>Situation Details</th>
+                    <th>Target PHC</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="ashareq-table-body">
+                  <tr><td colspan="9" class="text-center text-muted py-4">Loading ASHA requests...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 3: PATIENT ADMISSIONS (sp_admit_patient)
+             ==================================================================== -->
+        <section id="section-cases" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Patient Cases & Clinical Admissions</h2>
+              <p class="text-muted small mb-0">Transactional patient management using MySQL 8 stored procedures (<code>sp_admit_patient</code> and <code>sp_close_case</code>).</p>
+            </div>
+            <button class="btn btn-primary fw-semibold shadow-sm" onclick="openAdmitPatientModal()">
+              <i class="bi bi-person-plus-fill me-1"></i> Admit Patient (sp_admit_patient)
+            </button>
+          </div>
+
+          <!-- Stored Procedure Notice -->
+          <div class="stored-proc-banner mb-3">
+            <i class="bi bi-cpu-fill fs-5 mt-1"></i>
+            <div>
+              <span class="fw-bold">DBMS Transaction Guard:</span>
+              Admissions execute <code>CALL sp_admit_patient(disease, hospital, age, gender, icu)</code>.
+              The database verifies capacity, row-locks the hospital, decrements available beds, and rolls back if full.
+              Closing a case invokes <code>sp_close_case(case_id, status)</code>, which restores the bed count automatically.
+            </div>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div class="flex-grow-1" style="min-width: 200px;">
+              <input type="text" class="form-control" id="case-search-input" placeholder="Search case ID, disease, hospital, city...">
+            </div>
+            <div style="min-width: 150px;">
+              <select class="form-select" id="case-filter-status">
+                <option value="">All Statuses</option>
+                <option value="admitted">Admitted (Active)</option>
+                <option value="recovered">Recovered</option>
+                <option value="deceased">Deceased</option>
+              </select>
+            </div>
+            <div style="min-width: 180px;">
+              <select class="form-select" id="case-filter-disease">
+                <option value="">All Tracked Diseases</option>
+              </select>
+            </div>
+            <div style="min-width: 180px;">
+              <select class="form-select" id="case-filter-hospital">
+                <option value="">All Hospital Facilities</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cases Data Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>Case #</th>
+                    <th>Disease</th>
+                    <th>Hospital</th>
+                    <th>Age / Gender</th>
+                    <th>Bed Type</th>
+                    <th>Status</th>
+                    <th>Admitted On</th>
+                    <th>Closed On</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="cases-table-body">
+                  <tr><td colspan="9" class="text-center text-muted py-4">Loading clinical admissions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 4: DISEASE CATALOG
+             ==================================================================== -->
+        <section id="section-diseases" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Disease Master Catalog</h2>
+              <p class="text-muted small mb-0">Maintain epidemiology classifications and weekly outbreak trigger alert thresholds.</p>
+            </div>
+            <button class="btn btn-primary fw-semibold" onclick="openDiseaseModal('create')">
+              <i class="bi bi-plus-circle me-1"></i> Add Disease
+            </button>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div class="flex-grow-1" style="min-width: 220px;">
+              <input type="text" class="form-control" id="disease-search-input" placeholder="Search disease name...">
+            </div>
+            <div style="min-width: 180px;">
+              <select class="form-select" id="disease-filter-category">
+                <option value="">All Categories</option>
+                <option value="vector-borne">Vector-Borne</option>
+                <option value="water-borne">Water-Borne</option>
+                <option value="air-borne">Air-Borne</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Disease Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Disease Name</th>
+                    <th>Transmission Category</th>
+                    <th>Outbreak Alert Threshold</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="diseases-table-body">
+                  <tr><td colspan="5" class="text-center text-muted py-4">Loading diseases...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 5: OUTBREAK ALERTS
+             ==================================================================== -->
+        <section id="section-alerts" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Outbreak Alerts & Early Warning</h2>
+              <p class="text-muted small mb-0">Manage automated trigger warnings and issue manual administrative health alerts.</p>
+            </div>
+            <button class="btn btn-danger fw-semibold" onclick="openAlertModal()">
+              <i class="bi bi-bell-fill me-1"></i> Issue Outbreak Alert
+            </button>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div style="min-width: 150px;">
+              <select class="form-select" id="alert-filter-status">
+                <option value="">All Statuses</option>
+                <option value="active">Active Only</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+            <div style="min-width: 160px;">
+              <select class="form-select" id="alert-filter-level">
+                <option value="">All Severities</option>
+                <option value="warning">Warning</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div class="flex-grow-1" style="min-width: 200px;">
+              <select class="form-select" id="alert-filter-disease">
+                <option value="">All Tracked Diseases</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Alerts Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>Alert #</th>
+                    <th>Disease</th>
+                    <th>City</th>
+                    <th>Severity Level</th>
+                    <th>Advisory Message</th>
+                    <th>Status</th>
+                    <th>Issued At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="alerts-table-body">
+                  <tr><td colspan="8" class="text-center text-muted py-4">Loading alerts...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 6: PHARMACY INVENTORY
+             ==================================================================== -->
+        <section id="section-medicines" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Hospital Pharmacy & Medicine Stocks</h2>
+              <p class="text-muted small mb-0">Prevent stockouts using view <code>vw_low_stock</code> and manage critical medicine reorder levels.</p>
+            </div>
+            <button class="btn btn-primary fw-semibold" onclick="openMedicineModal('create')">
+              <i class="bi bi-plus-circle me-1"></i> Add Medicine Item
+            </button>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div class="flex-grow-1" style="min-width: 200px;">
+              <input type="text" class="form-control" id="med-search-input" placeholder="Search medicine name or facility...">
+            </div>
+            <div style="min-width: 200px;">
+              <select class="form-select" id="med-filter-hospital">
+                <option value="">All Hospital Facilities</option>
+              </select>
+            </div>
+            <div class="form-check form-switch pt-1">
+              <input class="form-check-input" type="checkbox" id="med-filter-lowstock">
+              <label class="form-check-label small fw-bold text-danger" for="med-filter-lowstock">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>Low Stock Only
+              </label>
+            </div>
+          </div>
+
+          <!-- Medicines Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Medicine Name</th>
+                    <th>Hospital Facility</th>
+                    <th>Current Stock</th>
+                    <th>Reorder Level</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="medicines-table-body">
+                  <tr><td colspan="7" class="text-center text-muted py-4">Loading pharmacy inventory...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 7: VACCINATION DRIVES
+             ==================================================================== -->
+        <section id="section-vaccination" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Immunization & Vaccination Tracking</h2>
+              <p class="text-muted small mb-0">Track state-level vaccination campaigns, administered doses, and target population coverage percentages.</p>
+            </div>
+            <button class="btn btn-primary fw-semibold" onclick="openVaccinationModal('create')">
+              <i class="bi bi-plus-circle me-1"></i> Record Vaccination Drive
+            </button>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div style="min-width: 180px;">
+              <select class="form-select" id="vaccine-filter-state">
+                <option value="">All States</option>
+                <option value="delhi">Delhi</option>
+                <option value="maharashtra">Maharashtra</option>
+                <option value="karnataka">Karnataka</option>
+                <option value="tamil nadu">Tamil Nadu</option>
+                <option value="telangana">Telangana</option>
+                <option value="west bengal">West Bengal</option>
+                <option value="gujarat">Gujarat</option>
+              </select>
+            </div>
+            <div class="flex-grow-1" style="min-width: 200px;">
+              <select class="form-select" id="vaccine-filter-disease">
+                <option value="">All Target Diseases</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Vaccination Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Target Disease</th>
+                    <th>State</th>
+                    <th>Doses Administered</th>
+                    <th>Target Population</th>
+                    <th>Coverage Progress</th>
+                    <th>Record Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="vaccination-table-body">
+                  <tr><td colspan="8" class="text-center text-muted py-4">Loading vaccination records...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 8: REVIEW COMPLAINTS
+             ==================================================================== -->
+        <section id="section-complaints" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">Citizen Grievances & Sanitation Review</h2>
+              <p class="text-muted small mb-0">Review public hygiene complaints, sanitation issues, and transition statuses (new &rarr; reviewed &rarr; closed).</p>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div style="min-width: 180px;">
+              <select class="form-select" id="complaint-filter-status">
+                <option value="">All Grievances</option>
+                <option value="new">New (Needs Action)</option>
+                <option value="reviewed">Under Review</option>
+                <option value="closed">Resolved & Closed</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Complaints Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>City</th>
+                    <th>Grievance Description</th>
+                    <th>Status</th>
+                    <th>Submitted At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="complaints-table-body">
+                  <tr><td colspan="6" class="text-center text-muted py-4">Loading citizen grievances...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 9: USER MANAGEMENT
+             ==================================================================== -->
+        <section id="section-users" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">System User Accounts & RBAC</h2>
+              <p class="text-muted small mb-0">Manage administrative privileges, create citizen accounts, and enforce role-based access control.</p>
+            </div>
+            <button class="btn btn-primary fw-semibold" onclick="openUserModal('create')">
+              <i class="bi bi-person-plus-fill me-1"></i> Create User Account
+            </button>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div style="min-width: 180px;">
+              <select class="form-select" id="user-filter-role">
+                <option value="">All Roles</option>
+                <option value="admin">Admin Accounts</option>
+                <option value="public">Public Citizen Accounts</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Users Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>User ID</th>
+                    <th>Username</th>
+                    <th>Role Privileges</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="users-table-body">
+                  <tr><td colspan="5" class="text-center text-muted py-4">Loading users...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ====================================================================
+             SECTION 10: AUDIT LOG TRAIL
+             ==================================================================== -->
+        <section id="section-audit" class="portal-section" style="display: none;">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <h2 class="h4 fw-bold mb-1">System Security Audit Trail</h2>
+              <p class="text-muted small mb-0">Immutable record of all inserts, updates, deletes, and stored procedure executions.</p>
+            </div>
+            <button class="btn btn-light btn-sm border fw-medium" onclick="loadAuditLogs(); renderAuditTable();">
+              <i class="bi bi-arrow-clockwise me-1"></i> Refresh Log
+            </button>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div style="min-width: 180px;">
+              <select class="form-select" id="audit-filter-action">
+                <option value="">All Actions</option>
+                <option value="INSERT">INSERT</option>
+                <option value="UPDATE">UPDATE</option>
+                <option value="DELETE">DELETE</option>
+                <option value="ADMIT">ADMIT (sp_admit_patient)</option>
+                <option value="CLOSE">CLOSE (sp_close_case)</option>
+                <option value="RESOLVE">RESOLVE</option>
+              </select>
+            </div>
+            <div class="flex-grow-1" style="min-width: 220px;">
+              <input type="text" class="form-control" id="audit-search-input" placeholder="Search table name, user, or modification details...">
+            </div>
+          </div>
+
+          <!-- Audit Table -->
+          <div class="hw-card">
+            <div class="table-responsive">
+              <table class="table table-custom">
+                <thead>
+                  <tr>
+                    <th>Log ID</th>
+                    <th>User / Role</th>
+                    <th>Action</th>
+                    <th>Target Table</th>
+                    <th>Record ID</th>
+                    <th>Audit Details</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody id="audit-table-body">
+                  <tr><td colspan="7" class="text-center text-muted py-4">Loading audit logs...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 1: ADMIT PATIENT (sp_admit_patient)
+       ========================================================================== -->
+  <div class="modal fade" id="admitPatientModal" tabindex="-1" aria-labelledby="admitModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="admit-patient-form">
+          <div class="modal-header">
+            <div>
+              <h3 class="modal-title h5 fw-bold mb-0" id="admitModalTitle">
+                <i class="bi bi-clipboard2-plus text-primary me-2"></i>Admit Patient
+              </h3>
+              <small class="text-muted">Executes atomic stored procedure <code>sp_admit_patient</code></small>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+
+            <!-- Error Banner -->
+            <div class="alert alert-danger d-none py-2 px-3 small rounded-3" id="admit-error-box"></div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-secondary">Target Disease <span class="text-danger">*</span></label>
+              <select class="form-select" id="admit-disease-select" required>
+                <option value="">Select Target Disease...</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-secondary">Hospital Facility <span class="text-danger">*</span></label>
+              <select class="form-select" id="admit-hospital-select" required>
+                <option value="">Select Hospital Facility...</option>
+              </select>
+              <div class="form-text small">Lists live bed & ICU capacities for immediate allocation.</div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold text-secondary">Age Group <span class="text-danger">*</span></label>
+                <select class="form-select" id="admit-age-group" required>
+                  <option value="0-14">0-14 (Child)</option>
+                  <option value="15-30" selected>15-30 (Youth)</option>
+                  <option value="31-45">31-45 (Adult)</option>
+                  <option value="46-60">46-60 (Middle)</option>
+                  <option value="60+">60+ (Senior)</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold text-secondary">Gender <span class="text-danger">*</span></label>
+                <select class="form-select" id="admit-gender" required>
+                  <option value="M" selected>Male (M)</option>
+                  <option value="F">Female (F)</option>
+                  <option value="O">Other (O)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-check form-switch p-3 bg-light rounded-3 border mb-3">
+              <input class="form-check-input" type="checkbox" id="admit-icu">
+              <label class="form-check-label fw-semibold text-danger" for="admit-icu">
+                <i class="bi bi-heart-pulse-fill me-1"></i> Require ICU Bed Allocation
+              </label>
+              <div class="small text-muted">If checked, procedure decrements <code>available_icu</code> instead of general beds.</div>
+            </div>
+
+            <div class="stored-proc-banner">
+              <i class="bi bi-info-circle-fill fs-5 mt-1"></i>
+              <div style="font-size: 0.8rem;">
+                <strong>ACID Transaction Guarantee:</strong> If the chosen hospital has 0 available beds, MySQL triggers custom exception <code>45000: No bed available in this hospital</code> and rolls back all changes.
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">
+              <i class="bi bi-check2-circle me-1"></i> Execute Admission
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 2: DISCHARGE / CLOSE CASE (sp_close_case)
+       ========================================================================== -->
+  <div class="modal fade" id="closeCaseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="close-case-form">
+          <input type="hidden" id="close-case-id">
+          <div class="modal-header">
+            <div>
+              <h3 class="modal-title h5 fw-bold mb-0">
+                <i class="bi bi-door-open text-success me-2"></i>Discharge Patient
+              </h3>
+              <small class="text-muted">Executes stored procedure <code>sp_close_case</code></small>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="alert alert-danger d-none py-2 px-3 small rounded-3" id="close-case-error-box"></div>
+
+            <div class="p-3 bg-light rounded-3 border mb-3">
+              <div class="text-muted small">Selected Patient Record:</div>
+              <div class="fw-bold" id="close-case-summary">Case #--</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-secondary">Discharge Outcome Status <span class="text-danger">*</span></label>
+              <select class="form-select" id="close-case-status" required>
+                <option value="recovered">Recovered (Patient Discharged)</option>
+                <option value="deceased">Deceased (Clinical Mortality)</option>
+              </select>
+            </div>
+
+            <div class="alert alert-info py-2 px-3 small mb-0 rounded-3">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>
+              Closing this case will mark <code>closed_on = CURDATE()</code> and automatically increment available beds back into the hospital inventory.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-success fw-semibold px-4">
+              <i class="bi bi-check2-circle me-1"></i> Confirm Discharge & Release Bed
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 3: EDIT CASE ATTRIBUTES
+       ========================================================================== -->
+  <div class="modal fade" id="editCaseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="edit-case-form">
+          <input type="hidden" id="edit-case-id">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0">Edit Patient Case Details</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="text-muted small mb-3" id="edit-case-info">Case #--</div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Age Group</label>
+                <select class="form-select" id="edit-case-age">
+                  <option value="0-14">0-14</option>
+                  <option value="15-30">15-30</option>
+                  <option value="31-45">31-45</option>
+                  <option value="46-60">46-60</option>
+                  <option value="60+">60+</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Gender</label>
+                <select class="form-select" id="edit-case-gender">
+                  <option value="M">Male (M)</option>
+                  <option value="F">Female (F)</option>
+                  <option value="O">Other (O)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Case Status</label>
+              <select class="form-select" id="edit-case-status">
+                <option value="admitted">Admitted</option>
+                <option value="recovered">Recovered</option>
+                <option value="deceased">Deceased</option>
+              </select>
+            </div>
+
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="edit-case-icu">
+              <label class="form-check-label fw-semibold" for="edit-case-icu">ICU Bed Required</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 4: PHC / HEALTH FACILITY (Add / Edit)
+       ========================================================================== -->
+  <div class="modal fade" id="hospitalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <form id="hospital-form">
+          <input type="hidden" id="hospital-modal-id">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0" id="hospital-modal-title">PHC / Health Centre Facility</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-semibold">Facility Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="hosp-name" required placeholder="e.g. Shirur Primary Health Centre">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small fw-semibold">Facility Type <span class="text-danger">*</span></label>
+                <select class="form-select" id="hosp-facility-type" required>
+                  <option value="PHC">PHC (Primary Health Centre)</option>
+                  <option value="CHC">CHC (Community Health Centre)</option>
+                  <option value="Sub-centre">Sub-centre</option>
+                  <option value="District Hospital">District Hospital</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small fw-semibold">Operating Hours</label>
+                <input type="text" class="form-control" id="hosp-hours" placeholder="e.g. 24x7 or 8 AM - 4 PM" value="24x7">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6 col-md-4">
+                <label class="form-label small fw-semibold">District / City <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="hosp-city" required placeholder="e.g. Pune">
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label small fw-semibold">State <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="hosp-state" required placeholder="e.g. Maharashtra">
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label small fw-semibold">Emergency Phone / Helpline</label>
+                <input type="text" class="form-control" id="hosp-phone" placeholder="e.g. 02138-222100">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Latitude (GPS) <span class="text-danger">*</span></label>
+                <input type="number" step="0.000001" class="form-control" id="hosp-lat" required placeholder="e.g. 18.8256">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Longitude (GPS) <span class="text-danger">*</span></label>
+                <input type="number" step="0.000001" class="form-control" id="hosp-lng" required placeholder="e.g. 74.3789">
+              </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border mb-3">
+              <div class="fw-bold small text-secondary mb-2 text-uppercase">Bed & Critical Care Inventory</div>
+              <div class="row g-3">
+                <div class="col-6 col-md-3">
+                  <label class="form-label small fw-semibold">Total Beds <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control font-monospace" id="hosp-total-beds" required min="1" value="10">
+                </div>
+                <div class="col-6 col-md-3">
+                  <label class="form-label small fw-semibold">Available Beds <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control font-monospace text-success fw-bold" id="hosp-avail-beds" required min="0" value="8">
+                </div>
+                <div class="col-6 col-md-2">
+                  <label class="form-label small fw-semibold">Total ICU</label>
+                  <input type="number" class="form-control font-monospace" id="hosp-total-icu" min="0" value="0">
+                </div>
+                <div class="col-6 col-md-2">
+                  <label class="form-label small fw-semibold">Avail ICU</label>
+                  <input type="number" class="form-control font-monospace text-primary fw-bold" id="hosp-avail-icu" min="0" value="0">
+                </div>
+                <div class="col-12 col-md-2">
+                  <label class="form-label small fw-semibold">Ventilators</label>
+                  <input type="number" class="form-control font-monospace" id="hosp-ventilators" min="0" value="0">
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border mb-2">
+              <div class="fw-bold small text-secondary mb-2 text-uppercase">Rural Healthcare Facilities</div>
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="form-check form-switch pt-1">
+                    <input class="form-check-input" type="checkbox" id="hosp-doctor" checked>
+                    <label class="form-check-label small fw-semibold" for="hosp-doctor">
+                      <i class="bi bi-person-badge text-primary me-1"></i> Medical Officer On Duty
+                    </label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-check form-switch pt-1">
+                    <input class="form-check-input" type="checkbox" id="hosp-ambulance" checked>
+                    <label class="form-check-label small fw-semibold" for="hosp-ambulance">
+                      <i class="bi bi-truck text-danger me-1"></i> 108 Emergency Ambulance Stationed
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">Save Facility</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 4B: AFFORDABLE SERVICE (Add / Edit)
+       ========================================================================== -->
+  <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="service-form">
+          <input type="hidden" id="service-modal-id">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0" id="service-modal-title">Affordable Service / Scheme</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Service Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="service-name" required placeholder="e.g. Normal Childbirth & Institutional Delivery">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Primary Health Centre (PHC) <span class="text-danger">*</span></label>
+              <select class="form-select" id="service-phc-select" required>
+                <option value="">Select PHC / CHC Facility...</option>
+              </select>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Category <span class="text-danger">*</span></label>
+                <select class="form-select" id="service-category" required>
+                  <option value="Consultation">Consultation</option>
+                  <option value="Maternal Care">Maternal Care</option>
+                  <option value="Diagnostic">Diagnostic</option>
+                  <option value="Emergency Care">Emergency Care</option>
+                  <option value="Vaccination">Vaccination</option>
+                  <option value="Medicine Supply">Medicine Supply</option>
+                  <option value="General Health">General Health</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Cost (₹ INR) <span class="text-danger">*</span></label>
+                <input type="number" step="0.01" class="form-control font-monospace" id="service-cost" required min="0" value="0">
+              </div>
+            </div>
+
+            <div class="form-check form-switch p-3 bg-light rounded-3 border mb-3">
+              <input class="form-check-input" type="checkbox" id="service-is-free" checked>
+              <label class="form-check-label fw-semibold text-success" for="service-is-free">
+                <i class="bi bi-tag-fill me-1"></i> Free Public Healthcare Service (₹0)
+              </label>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Government Scheme Sponsorship</label>
+              <input type="text" class="form-control" id="service-scheme" placeholder="e.g. Janani Suraksha Yojana (JSY), Ayushman Bharat, Free PHC Mandate">
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Notes / Eligibility</label>
+              <textarea class="form-control" id="service-notes" rows="2" placeholder="e.g. Free ambulance pickup, includes ₹1400 cash assistance"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">Save Service</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 4C: VILLAGE VACCINATION DRIVE (Add / Edit)
+       ========================================================================== -->
+  <div class="modal fade" id="villageDriveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="village-drive-form">
+          <input type="hidden" id="vdrive-modal-id">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0" id="vdrive-modal-title">Schedule Village Vaccination Drive</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Supervising PHC <span class="text-danger">*</span></label>
+                <select class="form-select" id="vdrive-phc-select" required>
+                  <option value="">Select PHC...</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Target Village <span class="text-danger">*</span></label>
+                <select class="form-select" id="vdrive-village-select" required>
+                  <option value="">Select Village...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Vaccine Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="vdrive-vaccine" required placeholder="e.g. Oral Polio Vaccine (OPV) / Pentavalent">
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Camp Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="vdrive-date" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Time Slot</label>
+                <input type="text" class="form-control" id="vdrive-time" placeholder="09:00 AM - 02:00 PM" value="09:00 AM - 02:00 PM">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Target Beneficiaries</label>
+                <input type="text" class="form-control" id="vdrive-target" placeholder="e.g. Infants (0-1 yr)" value="Infants & Children">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Allocated Doses <span class="text-danger">*</span></label>
+                <input type="number" class="form-control font-monospace" id="vdrive-doses" required min="1" value="100">
+              </div>
+            </div>
+
+            <div class="form-text small text-muted">
+              Trigger <code>trg_vaccine_drive_stockout</code> will automatically create an early warning alert if remaining doses hit 0 during drive completion.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">Schedule Drive</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 5: DISEASE (Add / Edit)
+       ========================================================================== -->
+  <div class="modal fade" id="diseaseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="disease-form">
+          <input type="hidden" id="disease-modal-id">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0" id="disease-modal-title">Disease Entry</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Disease Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="disease-name" required placeholder="e.g. Dengue Fever">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Category <span class="text-danger">*</span></label>
+              <select class="form-select" id="disease-category" required>
+                <option value="vector-borne">Vector-Borne</option>
+                <option value="water-borne">Water-Borne</option>
+                <option value="air-borne">Air-Borne</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Outbreak Alert Threshold (Cases / 7 Days) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control font-monospace" id="disease-threshold" required min="1" value="20">
+              <div class="form-text small">When admissions exceed this threshold in any city in 7 days, trigger <code>trg_case_alert</code> auto-fires an alert.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">Save Disease</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 6: OUTBREAK ALERT (Create)
+       ========================================================================== -->
+  <div class="modal fade" id="alertModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="alert-form">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0 text-danger">
+              <i class="bi bi-bell-fill me-2"></i>Issue Outbreak Alert
+            </h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Disease <span class="text-danger">*</span></label>
+              <select class="form-select" id="alert-disease-select" required>
+                <option value="">Select Disease...</option>
+              </select>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Target Area Level <span class="text-danger">*</span></label>
+                <select class="form-select" id="alert-area-level" required>
+                  <option value="village">Village</option>
+                  <option value="block">Block</option>
+                  <option value="district" selected>District</option>
+                  <option value="state">State</option>
+                  <option value="all">All / State-wide</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Target Area Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="alert-city" required placeholder="e.g. Pune or Shirur">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Severity Level <span class="text-danger">*</span></label>
+              <select class="form-select" id="alert-level" required>
+                <option value="warning">Warning (Yellow)</option>
+                <option value="high" selected>High (Amber)</option>
+                <option value="critical">Critical (Red)</option>
+              </select>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Advisory Message <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="alert-message" rows="3" required placeholder="e.g. Spike of gastroenteritis cases detected; boil drinking water advisory."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger fw-semibold px-4">Publish Alert</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 7: MEDICINE (Add / Edit)
+       ========================================================================== -->
+  <div class="modal fade" id="medicineModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="medicine-form">
+          <input type="hidden" id="medicine-modal-id">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0" id="medicine-modal-title">Medicine Item</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Hospital Facility <span class="text-danger">*</span></label>
+              <select class="form-select" id="med-hospital-select" required>
+                <option value="">Select Hospital...</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Medicine Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="med-name" required placeholder="e.g. Paracetamol 500mg">
+            </div>
+
+            <div class="row g-3 mb-2">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Current Stock Units <span class="text-danger">*</span></label>
+                <input type="number" class="form-control font-monospace" id="med-stock" required min="0" value="100">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Reorder Threshold <span class="text-danger">*</span></label>
+                <input type="number" class="form-control font-monospace" id="med-reorder" required min="0" value="50">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">Save Medicine</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 8: VACCINATION (Add / Edit)
+       ========================================================================== -->
+  <div class="modal fade" id="vaccinationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="vaccination-form">
+          <input type="hidden" id="vaccination-modal-id">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0" id="vaccination-modal-title">Vaccination Drive Record</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Target Disease <span class="text-danger">*</span></label>
+              <select class="form-select" id="vaccine-disease-select" required>
+                <option value="">Select Disease...</option>
+              </select>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">State <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="vaccine-state" required placeholder="e.g. Maharashtra">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Record Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="vaccine-date" required>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-2">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Doses Administered <span class="text-danger">*</span></label>
+                <input type="number" class="form-control font-monospace" id="vaccine-doses" required min="0" placeholder="e.g. 50000">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Target Population <span class="text-danger">*</span></label>
+                <input type="number" class="form-control font-monospace" id="vaccine-target" required min="1" placeholder="e.g. 100000">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">Save Record</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 9: USER (Add / Edit)
+       ========================================================================== -->
+  <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="user-form">
+          <input type="hidden" id="user-modal-id">
+          <div class="modal-header">
+            <h3 class="modal-title h5 fw-bold mb-0" id="user-modal-title">System User Account</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Username <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="user-username" required placeholder="e.g. dr_sharma">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Password</label>
+              <input type="password" class="form-control" id="user-password" placeholder="Account password">
+              <div class="form-text small" id="user-password-help">Passwords are securely hashed using bcrypt (10 rounds).</div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Role Privileges <span class="text-danger">*</span></label>
+              <select class="form-select" id="user-role" required>
+                <option value="public">Public Citizen (Read-Only Portal)</option>
+                <option value="asha">ASHA Worker (Field Grassroots Portal)</option>
+                <option value="admin">Administrator (Full Database Privileges)</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary fw-semibold px-4">Save User Account</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODAL 10: UNIVERSAL DELETE CONFIRMATION
+       ========================================================================== -->
+  <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center p-4">
+          <div class="danger-modal-icon">
+            <i class="bi bi-trash3-fill"></i>
+          </div>
+          <h3 class="h5 fw-bold mb-2" id="delete-modal-title">Confirm Deletion</h3>
+          <p class="text-muted small mb-4" id="delete-modal-message">
+            Are you sure you want to permanently delete this record? This action cannot be reversed.
+          </p>
+          <div class="d-flex justify-content-center gap-2">
+            <button type="button" class="btn btn-light border px-4 fw-medium" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger px-4 fw-semibold" id="btn-confirm-delete">
+              <i class="bi bi-trash3 me-1"></i> Delete Permanently
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Bootstrap 5 Bundle JS (Contains Modal API) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Shared API Client -->
+  <script src="/js/api.js"></script>
+
+  <!-- Admin Dashboard Controller -->
+  <script src="/js/admin-dashboard.js"></script>
+
+</body>
+</html>

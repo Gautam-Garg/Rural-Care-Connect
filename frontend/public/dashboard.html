@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rural Care Connect - Healthcare access for every village</title>
+  <meta name="description" content="Rural Care Connect - Healthcare access for every village. Decentralized Primary Health Centre (PHC) finder, affordable care by budget, village vaccination drives, area alerts, and surveillance.">
+
+  <!-- Bootstrap 5 CSS & Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <!-- Custom Core Design System -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-header" style="background: linear-gradient(135deg, #0d9488, #0f766e);">
+        <div class="sidebar-logo-icon" style="background: rgba(255,255,255,0.2);">
+          <i class="bi bi-heart-pulse-fill text-white"></i>
+        </div>
+        <div>
+          <div class="text-white fw-bold" style="font-size: 1.05rem;" data-i18n="appName">Rural Care Connect</div>
+          <div class="small text-white-50" style="font-size: 0.72rem;" data-i18n="appTagline">Healthcare access for every village.</div>
+        </div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="nav-section-title">Rural Services</div>
+        <a href="#section-overview" class="sidebar-link active" data-section="overview">
+          <i class="bi bi-speedometer2"></i> <span data-i18n="navOverview">Overview & Alerts</span>
+        </a>
+        <a href="#section-nearby" class="sidebar-link" data-section="nearby">
+          <i class="bi bi-geo-alt-fill text-danger"></i> <span data-i18n="navNearby">Nearby PHC Map</span>
+        </a>
+        <a href="#section-budget" class="sidebar-link" data-section="budget">
+          <i class="bi bi-currency-rupee text-success"></i> <span data-i18n="navBudget">Affordable Care (Budget)</span>
+        </a>
+        <a href="#section-vaccine" class="sidebar-link" data-section="vaccine">
+          <i class="bi bi-shield-shaded text-primary"></i> <span data-i18n="navVaccine">Village Vaccination Drives</span>
+        </a>
+        <a href="#section-alerts" class="sidebar-link" data-section="alerts">
+          <i class="bi bi-bell-fill text-warning"></i> <span data-i18n="navAlerts">Area Outbreak Alerts</span>
+        </a>
+        <a href="#section-symptoms" class="sidebar-link" data-section="symptoms">
+          <i class="bi bi-robot text-info"></i> <span data-i18n="symptomChecker">Rural AI Symptom Checker</span>
+        </a>
+        <a href="#section-beds" class="sidebar-link" data-section="beds">
+          <i class="bi bi-hospital"></i> <span data-i18n="navPHCs">PHC & Bed Availability</span>
+        </a>
+
+        <div class="nav-section-title mt-3">Epidemiology & Analytics</div>
+        <a href="#section-map" class="sidebar-link" data-section="map">
+          <i class="bi bi-map"></i> <span data-i18n="navMap">India Outbreak Map</span>
+        </a>
+        <a href="#section-trends" class="sidebar-link" data-section="trends">
+          <i class="bi bi-graph-up-arrow"></i> <span data-i18n="navTrends">Disease Trends</span>
+        </a>
+        <a href="#section-weather" class="sidebar-link" data-section="weather">
+          <i class="bi bi-cloud-sun"></i> <span data-i18n="navWeather">Weather & Risk</span>
+        </a>
+
+        <div class="nav-section-title mt-3">Public Services</div>
+        <a href="#section-complaints" class="sidebar-link" data-section="complaints">
+          <i class="bi bi-megaphone"></i> <span data-i18n="navComplaints">Citizen Grievances</span>
+        </a>
+        <a href="#section-reports" class="sidebar-link" data-section="reports">
+          <i class="bi bi-file-earmark-arrow-down"></i> <span data-i18n="navReports">Download Reports</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="d-flex align-items-center justify-content-between text-muted small">
+          <span><i class="bi bi-circle-fill text-success me-1" style="font-size: 0.6rem;"></i> Live Rural Network</span>
+          <span class="badge bg-secondary-subtle text-secondary font-monospace">MySQL 8 ACID</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Topbar -->
+      <header class="app-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-light d-lg-none p-1 px-2 border" id="btn-toggle-sidebar" aria-label="Toggle navigation">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div>
+            <h1 class="h5 mb-0 fw-bold">Rural Care Connect</h1>
+            <small class="text-muted" data-i18n="appTagline">Healthcare access for every village.</small>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 gap-md-3">
+          <!-- Emergency 108 Action Button -->
+          <button class="btn btn-emergency btn-sm px-3" id="btn-emergency-topbar" data-bs-toggle="modal" data-bs-target="#modal-emergency">
+            <i class="bi bi-telephone-fill"></i> <span data-i18n="emergencyBtn">EMERGENCY 108</span>
+          </button>
+
+          <!-- Language Selector -->
+          <select class="form-select form-select-sm border fw-semibold" id="lang-select" style="width: auto; min-width: 105px;">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+
+          <!-- Low-bandwidth mode toggle -->
+          <div class="form-check form-switch d-none d-md-flex align-items-center mb-0 gap-1" title="Toggle Low-Bandwidth Mode for slow internet">
+            <input class="form-check-input" type="checkbox" role="switch" id="toggle-low-bandwidth">
+            <label class="form-check-label small text-muted text-nowrap" for="toggle-low-bandwidth" data-i18n="lowBandwidth">Low-Bandwidth</label>
+          </div>
+
+          <!-- Citizen badge -->
+          <span class="badge-soft-primary d-none d-xl-inline-flex align-items-center">
+            <i class="bi bi-person-check me-1"></i> Public Citizen
+          </span>
+
+          <button class="btn btn-outline-danger btn-sm px-3 fw-medium" id="btn-logout" title="Sign out of Rural Care Connect">
+            <i class="bi bi-box-arrow-right me-1"></i> <span data-i18n="logout">Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- App Content Container -->
+      <div class="app-content">
+
+        <!-- Active Alerts Banner -->
+        <div id="alerts-banner-container" class="mb-3">
+          <div class="d-flex align-items-center justify-content-center p-3 text-muted small bg-white border rounded-3 shadow-sm">
+            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+            Loading active area outbreak alerts...
+          </div>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-icon-wrapper kpi-blue" style="background-color: #ccfbf1; color: #0f766e;">
+                <i class="bi bi-hospital"></i>
+              </div>
+              <div>
+                <div class="text-muted small fw-semibold">PHCs & CHCs Active</div>
+                <div class="h4 mb-0 fw-bold" id="kpi-hospitals">30</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-icon-wrapper kpi-green">
+                <i class="bi bi-heart-pulse"></i>
+              </div>
+              <div>
+                <div class="text-muted small fw-semibold">Available Rural Beds</div>
+                <div class="h4 mb-0 fw-bold" id="kpi-beds">--</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-icon-wrapper kpi-amber">
+                <i class="bi bi-exclamation-triangle"></i>
+              </div>
+              <div>
+                <div class="text-muted small fw-semibold">Area Alerts Active</div>
+                <div class="h4 mb-0 fw-bold" id="kpi-alerts">--</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-icon-wrapper kpi-purple">
+                <i class="bi bi-shield-shaded"></i>
+              </div>
+              <div>
+                <div class="text-muted small fw-semibold">Vaccination Drives</div>
+                <div class="h4 mb-0 fw-bold" id="kpi-drives">18</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             SECTION 1: OVERVIEW & RURAL CARE SNAPSHOT
+             ==================================================================== -->
+        <section id="section-overview" class="portal-section">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-activity me-2 text-primary"></i>Rural Healthcare Access & Surveillance</h2>
+                <small class="text-muted">SDG 3: Good Health • SDG 10: Reduced Inequalities • Village & Block Level Network</small>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-danger fw-semibold" data-bs-toggle="modal" data-bs-target="#modal-emergency">
+                  <i class="bi bi-telephone-fill me-1"></i> Emergency 108
+                </button>
+                <a href="#section-nearby" class="btn btn-sm btn-outline-primary fw-medium" onclick="document.querySelector('.sidebar-link[data-section=\'nearby\']').click()">
+                  Find Nearest PHC <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              <div class="row g-4 align-items-center">
+                <div class="col-12 col-lg-7">
+                  <h3 class="h5 fw-bold mb-2">Connecting Every Villager to Primary Health Care</h3>
+                  <p class="text-muted small mb-3">
+                    Rural Care Connect bypasses big-city metro hospital bias. We empower rural families and ASHA workers across <strong>Maharashtra, Madhya Pradesh, and Bihar</strong> to quickly locate Primary Health Centres (PHC), check doctor on duty, book free maternal care (JSY), track upcoming village vaccination drives, and access affordable medicines under PM Jan Aushadhi.
+                  </p>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge-soft-success"><i class="bi bi-check2-circle me-1"></i>Doctor Available Today</span>
+                    <span class="badge-soft-primary"><i class="bi bi-truck me-1"></i>Ambulance on Duty</span>
+                    <span class="badge-soft-info"><i class="bi bi-cash-coin me-1"></i>Free & Affordable Care</span>
+                    <span class="badge-soft-danger"><i class="bi bi-bell-fill me-1"></i>Automated Outbreak Alerts</span>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-5">
+                  <div class="p-3 bg-light rounded-3 border">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="fw-semibold small text-dark"><i class="bi bi-broadcast me-1 text-danger"></i>Rural Care Network Status</span>
+                      <span class="badge bg-success">Operational</span>
+                    </div>
+                    <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Hierarchy: <strong>State &gt; District &gt; Block &gt; Village</strong></div>
+                    <div class="small text-muted mb-1"><i class="bi bi-calculator me-1"></i>Distance Engine: <strong>MySQL Haversine Procedure (sp_nearest_phc)</strong></div>
+                    <div class="small text-muted"><i class="bi bi-shield-check me-1"></i>Grassroots Link: <strong>ASHA Worker Network</strong></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 2: NEARBY PHC FINDER (MAP & GPS) - Prompt 4.1
+             ==================================================================== -->
+        <section id="section-nearby" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-geo-alt-fill me-2 text-danger"></i>Nearby Primary Health Centre (PHC) Finder</h2>
+                <small class="text-muted">Calculated via MySQL Haversine formula (<code>sp_nearest_phc</code>) with real-time doctor & ambulance availability</small>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary fw-semibold" id="btn-use-gps">
+                  <i class="bi bi-crosshair me-1"></i> <span data-i18n="useMyLocation">Use My Location (GPS)</span>
+                </button>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              
+              <!-- Location Hierarchy Selectors -->
+              <div class="filter-bar mb-3">
+                <div class="row g-2 w-100">
+                  <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-muted mb-1">State</label>
+                    <select class="form-select form-select-sm" id="select-phc-state">
+                      <option value="">All States / सभी राज्य</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-muted mb-1">District</label>
+                    <select class="form-select form-select-sm" id="select-phc-district">
+                      <option value="">All Districts / सभी जिले</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-muted mb-1">Village / गाँव</label>
+                    <select class="form-select form-select-sm" id="select-phc-village">
+                      <option value="">Select Village...</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-muted mb-1">Radius Search</label>
+                    <select class="form-select form-select-sm" id="select-phc-radius">
+                      <option value="15">Within 15 km</option>
+                      <option value="30">Within 30 km</option>
+                      <option value="50" selected>Within 50 km</option>
+                      <option value="100">Within 100 km</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Map and Results Grid -->
+              <div class="row g-3">
+                <div class="col-12 col-lg-7">
+                  <div class="border rounded-3 overflow-hidden position-relative" style="height: 480px;">
+                    <div id="phc-leaflet-map" style="height: 100%; width: 100%;"></div>
+                    <div class="position-absolute bottom-0 start-0 m-2 p-2 bg-white bg-opacity-90 rounded border small text-muted" style="z-index: 999;">
+                      <i class="bi bi-info-circle me-1"></i> Click anywhere on the map to drop a pin and find nearest PHCs.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-5">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold small text-secondary">NEAREST FACILITIES (SORTED NEAREST FIRST)</span>
+                    <span class="badge bg-secondary font-monospace" id="phc-results-count">0 facilities</span>
+                  </div>
+                  <div id="phc-results-list" class="overflow-y-auto" style="max-height: 440px;">
+                    <div class="text-center py-5 text-muted small">
+                      <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                      <div>Finding nearest Primary Health Centres...</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 3: AFFORDABLE CARE BY BUDGET - Prompt 4.2
+             ==================================================================== -->
+        <section id="section-budget" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-currency-rupee me-2 text-success"></i>Affordable Care & Total Cost Calculator</h2>
+                <small class="text-muted">Compare service fees, travel costs, and lost wages across public and private healthcare options.</small>
+              </div>
+              <ul class="nav nav-pills" id="budget-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active py-1 px-3 fw-semibold small" id="tab-budget-search" data-bs-toggle="pill" data-bs-target="#pane-budget-search" type="button" role="tab">
+                    <i class="bi bi-wallet2 me-1"></i> Budget Search
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link py-1 px-3 fw-semibold small" id="tab-total-cost" data-bs-toggle="pill" data-bs-target="#pane-total-cost" type="button" role="tab">
+                    <i class="bi bi-calculator me-1"></i> <span data-i18n="cost.total">Total cost (estimate)</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <div class="hw-card-body">
+              <div class="tab-content" id="budget-tabs-content">
+                <!-- PANE 1: Budget Search (Existing v_affordable_services) -->
+                <div class="tab-pane fade show active" id="pane-budget-search" role="tabpanel">
+                  <!-- Budget Filter Form -->
+                  <div class="p-4 bg-light rounded-3 border mb-4">
+                    <div class="row g-3 align-items-end">
+                      <div class="col-12 col-md-5">
+                        <label for="budget-amount" class="form-label fw-bold text-dark mb-1">
+                          <i class="bi bi-wallet2 text-success me-1"></i> <span data-i18n="enterBudget">How much money do you have? (₹)</span>
+                        </label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white fw-bold">₹</span>
+                          <input type="number" class="form-control form-control-lg border-start-0" id="budget-amount" placeholder="e.g. 0 for Free, 20, 50, 100" min="0" step="5" value="50">
+                        </div>
+                        <div class="form-text small">Enter ₹0 to see only 100% Free Government Schemes (Ayushman Bharat, JSY, etc.).</div>
+                      </div>
+
+                      <div class="col-12 col-md-4">
+                        <label for="budget-category" class="form-label fw-bold text-dark mb-1">
+                          <i class="bi bi-tag text-primary me-1"></i> Select Medical Need / आवश्यकता
+                        </label>
+                        <select class="form-select form-select-lg" id="budget-category">
+                          <option value="all">All Needs / सभी सेवाएँ</option>
+                          <option value="delivery">Maternity & Delivery (प्रसव व जच्चा)</option>
+                          <option value="fever">Fever & Malaria (बुखार व संक्रमण)</option>
+                          <option value="vaccination">Vaccination (टीकाकरण)</option>
+                          <option value="injury">Injury & Snakebite (चोट व सर्पदंश)</option>
+                          <option value="medicines">Essential Medicines (दवाइयाँ)</option>
+                          <option value="tests">Diagnostic Tests & X-Ray (जाँचें)</option>
+                          <option value="general">General Checkup (सामान्य परामर्श)</option>
+                        </select>
+                      </div>
+
+                      <div class="col-12 col-md-3">
+                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btn-search-affordable">
+                          <i class="bi bi-search me-1"></i> <span data-i18n="checkAffordability">Find Care</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Affordable Services Results Table -->
+                  <div class="table-responsive">
+                    <table class="table table-hover table-custom align-middle">
+                      <thead>
+                        <tr>
+                          <th>Service Name</th>
+                          <th>Category</th>
+                          <th>Facility & Location</th>
+                          <th>Cost (₹)</th>
+                          <th>Scheme / Subsidies</th>
+                          <th>Availability</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="affordable-services-tbody">
+                        <tr>
+                          <td colspan="7" class="text-center py-4 text-muted">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            Loading affordable healthcare catalog...
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- PANE 2: Total Cost of Care Calculator -->
+                <div class="tab-pane fade" id="pane-total-cost" role="tabpanel">
+                  <div class="p-4 bg-light rounded-3 border mb-4">
+                    <div class="row g-3 align-items-end">
+                      <div class="col-12 col-md-4">
+                        <label for="cost-need-select" class="form-label fw-bold text-dark mb-1">
+                          <i class="bi bi-heart-pulse text-danger me-1"></i> <span data-i18n="cost.need">Medical Need</span>
+                        </label>
+                        <select class="form-select form-select-lg" id="cost-need-select">
+                          <option value="Consultation">Fever / Check-up (Consultation)</option>
+                          <option value="Maternal Care">Delivery / Pregnancy (Maternal Care)</option>
+                          <option value="Vaccination">Vaccination (Immunization)</option>
+                          <option value="Emergency Care">Injury / Emergency (Trauma)</option>
+                          <option value="Diagnostic">Diagnostic Tests & Lab (Diagnostic)</option>
+                          <option value="General Health">General Checkup (General Health)</option>
+                        </select>
+                      </div>
+
+                      <div class="col-12 col-md-3">
+                        <label for="cost-mode-select" class="form-label fw-bold text-dark mb-1">
+                          <i class="bi bi-bicycle text-primary me-1"></i> <span data-i18n="cost.mode">Travel Mode</span>
+                        </label>
+                        <select class="form-select form-select-lg" id="cost-mode-select">
+                          <option value="bus">Bus (₹3/km, 25 km/h)</option>
+                          <option value="auto">Shared auto (₹4/km, 20 km/h)</option>
+                          <option value="bike">Own motorbike (₹3/km, 30 km/h)</option>
+                          <option value="vehicle">Hired vehicle (₹12/km, 30 km/h)</option>
+                          <option value="bicycle">Bicycle (₹0/km, 12 km/h)</option>
+                          <option value="walk">Walk (₹0/km, 4 km/h)</option>
+                        </select>
+                      </div>
+
+                      <div class="col-12 col-md-2">
+                        <label for="cost-wage-input" class="form-label fw-bold text-dark mb-1">
+                          <i class="bi bi-cash text-success me-1"></i> <span data-i18n="cost.wage_input">Daily Wage (₹)</span>
+                        </label>
+                        <input type="number" class="form-control form-control-lg" id="cost-wage-input" value="300" min="0" max="3000" step="50">
+                      </div>
+
+                      <div class="col-12 col-md-3">
+                        <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" id="btn-calc-total-cost">
+                          <i class="bi bi-calculator me-1"></i> <span data-i18n="cost.calculate">Calculate Total Cost</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="alert alert-secondary py-2 px-3 small border-0 mb-3 text-muted d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-2 fs-6 text-secondary"></i>
+                    <span data-i18n="cost.estimate_note">Estimate. Fares and wages are sample assumptions.</span>
+                  </div>
+
+                  <!-- Savings Notice Alert -->
+                  <div id="cost-savings-banner" class="alert alert-success d-none shadow-sm border-success d-flex align-items-center mb-4">
+                    <i class="bi bi-piggy-bank-fill fs-3 text-success me-3"></i>
+                    <div>
+                      <h6 class="fw-bold mb-0 text-success">Potential Cost Savings</h6>
+                      <div id="cost-savings-text" class="small fw-medium"></div>
+                    </div>
+                  </div>
+
+                  <!-- Stacked Bar Chart & Private Comparison -->
+                  <div class="row g-3 mb-4">
+                    <div class="col-12 col-lg-8">
+                      <div class="card p-3 shadow-sm border h-100">
+                        <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>Total Cost Breakdown Comparison (Rupees - Estimate)</h6>
+                        <div style="height: 280px; position: relative;">
+                          <canvas id="costChart"></canvas>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                      <div class="card p-3 shadow-sm border h-100 bg-light" id="private-benchmark-card">
+                        <span class="badge bg-secondary mb-2 align-self-start font-monospace">Private Benchmark (Sample)</span>
+                        <h6 class="fw-bold text-dark mb-1" id="priv-clinic-name">Private clinic (typical) (Sample)</h6>
+                        <div class="small text-muted mb-3"><i class="bi bi-pin-map me-1"></i>Assumed distance: <span id="priv-distance">12</span> km in town</div>
+                        <ul class="list-group list-group-flush small mb-3">
+                          <li class="list-group-item bg-transparent d-flex justify-content-between px-0">
+                            <span>Service & Medicine:</span>
+                            <strong id="priv-service-cost">--</strong>
+                          </li>
+                          <li class="list-group-item bg-transparent d-flex justify-content-between px-0">
+                            <span>Travel (Round Trip):</span>
+                            <strong id="priv-travel-cost">--</strong>
+                          </li>
+                          <li class="list-group-item bg-transparent d-flex justify-content-between px-0">
+                            <span>Lost Work Wage:</span>
+                            <strong id="priv-wage-loss">--</strong>
+                          </li>
+                          <li class="list-group-item bg-transparent d-flex justify-content-between px-0 pt-2 border-top">
+                            <span class="fw-bold text-danger">Total Cost (Estimate):</span>
+                            <span class="fw-bold text-danger fs-5" id="priv-total-cost">--</span>
+                          </li>
+                        </ul>
+                        <small class="text-muted mt-auto" style="font-size: 0.75rem;">Adjustable sample benchmark. Not an official price list.</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Government PHC Total Cost Cards -->
+                  <h6 class="fw-bold text-dark mb-3"><i class="bi bi-hospital me-2 text-success"></i>Government Facilities (Sorted by Lowest Total Cost)</h6>
+                  <div id="cost-government-results" class="row g-3">
+                    <div class="col-12 text-center py-4 text-muted">Click "Calculate Total Cost" to view personalized estimates based on your travel mode and wage.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 4: VILLAGE VACCINATION DRIVES - Prompt 4.3
+             ==================================================================== -->
+        <section id="section-vaccine" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header d-flex justify-content-between align-items-center">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-shield-shaded me-2 text-primary"></i>Upcoming Village Vaccination Drives Near Me</h2>
+                <small class="text-muted">Table <code>Vaccination_Drive</code> & view <code>vw_upcoming_drives</code>. Universal Immunization Programme (UIP).</small>
+              </div>
+              <span class="badge bg-primary-subtle text-primary fw-semibold">100% Free for Children & Mothers</span>
+            </div>
+            <div class="hw-card-body">
+
+              <!-- Location Filter -->
+              <div class="filter-bar mb-3">
+                <div class="row g-2 w-100">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">State</label>
+                    <select class="form-select form-select-sm" id="filter-drive-state">
+                      <option value="">All States</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">District</label>
+                    <select class="form-select form-select-sm" id="filter-drive-district">
+                      <option value="">All Districts</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Village</label>
+                    <select class="form-select form-select-sm" id="filter-drive-village">
+                      <option value="">All Villages</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Drives Grid -->
+              <div class="row g-3" id="vaccination-drives-grid">
+                <div class="col-12 text-center py-4 text-muted small">
+                  <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                  Loading scheduled village vaccination drives...
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 5: AREA OUTBREAK ALERTS - Prompt 4.4
+             ==================================================================== -->
+        <section id="section-alerts" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-bell-fill me-2 text-warning"></i>Area-Targeted Outbreak & Health Alerts</h2>
+                <small class="text-muted">Targeted at State, District, Block, and Village levels with automated trigger alerts</small>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              
+              <!-- Area Filter -->
+              <div class="filter-bar mb-3">
+                <div class="row g-2 w-100">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Filter by Area Level</label>
+                    <select class="form-select form-select-sm" id="filter-alert-level">
+                      <option value="">All Area Levels</option>
+                      <option value="village">Village Level (गाँव स्तर)</option>
+                      <option value="block">Block Level (प्रखंड स्तर)</option>
+                      <option value="district">District Level (जिला स्तर)</option>
+                      <option value="state">State Level (राज्य स्तर)</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Severity</label>
+                    <select class="form-select form-select-sm" id="filter-alert-severity">
+                      <option value="">All Severities</option>
+                      <option value="critical">Critical Outbreaks</option>
+                      <option value="high">High Risk</option>
+                      <option value="warning">Warning Advisories</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Status</label>
+                    <select class="form-select form-select-sm" id="filter-alert-status">
+                      <option value="active">Active Only</option>
+                      <option value="resolved">Resolved</option>
+                      <option value="">All</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alerts Cards List -->
+              <div id="area-alerts-list" class="d-flex flex-column gap-3">
+                <div class="text-center py-4 text-muted small">
+                  <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                  Loading area alerts...
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 6: RURAL AI SYMPTOM CHECKER & PHC GUIDANCE - Prompt 4.5
+             ==================================================================== -->
+        <section id="section-symptoms" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white;">
+              <div>
+                <h2 class="h6 mb-0 fw-bold text-white"><i class="bi bi-robot me-2"></i>Rural AI Symptom Checker & PHC Guidance</h2>
+                <small class="text-white-50">Offline rule-based triage: "Which PHC should I visit and how urgent is it?"</small>
+              </div>
+              <span class="badge bg-white text-primary fw-bold">Emergency Advice</span>
+            </div>
+            <div class="hw-card-body">
+              
+              <div class="row g-4">
+                <div class="col-12 col-lg-6">
+                  <div class="p-3 bg-light rounded-3 border">
+                    <h3 class="h6 fw-bold mb-3 text-dark">Step 1: Select Chief Medical Condition</h3>
+
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold text-muted">Primary Symptom</label>
+                      <select class="form-select" id="symptom-chief">
+                        <option value="">-- Choose Symptom / लक्षण चुनें --</option>
+                        <option value="snakebite">Snakebite or Scorpion Sting (सर्पदंश / बिच्छू का डंक)</option>
+                        <option value="labor">Pregnancy Labor Pains / Water Break (प्रसव पीड़ा)</option>
+                        <option value="fever_severe">High Continuous Fever with Shivering / Chills (तेज बुखार व कंपकंपी)</option>
+                        <option value="diarrhea_severe">Severe Watery Diarrhea & Dehydration (गंभीर दस्त व उल्टी)</option>
+                        <option value="dog_bite">Dog / Animal Bite (कुत्ते या जानवर का काटना)</option>
+                        <option value="trauma">Deep Cut, Heavy Bleeding, Fracture (गंभीर घाव व खून बहना)</option>
+                        <option value="tb_cough">Cough lasting more than 2 weeks with weight loss (लगातार खांसी)</option>
+                        <option value="child_fever">Child under 5 with fast breathing (बच्चे की तेज सांस)</option>
+                        <option value="general_fever">Mild Fever, Body Pain, Cold (सामान्य बुखार व सर्दी)</option>
+                      </select>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold text-muted">Patient Group</label>
+                      <select class="form-select" id="symptom-group">
+                        <option value="adult">Adult (वयस्क 15-59 वर्ष)</option>
+                        <option value="pregnant">Pregnant Mother (गर्भवती महिला)</option>
+                        <option value="infant">Infant / Child under 5 (छोटा बच्चा)</option>
+                        <option value="elderly">Senior Citizen (बुजुर्ग 60+ वर्ष)</option>
+                      </select>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold text-muted">Danger Signs Present? (Check all that apply)</label>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="danger-unconscious">
+                        <label class="form-check-label small" for="danger-unconscious">Unconscious, fainting, or extreme lethargy</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="danger-breath">
+                        <label class="form-check-label small" for="danger-breath">Severe difficulty breathing or chest pain</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="danger-seizure">
+                        <label class="form-check-label small" for="danger-seizure">Fits, convulsions, or uncontrollable shivering</label>
+                      </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 fw-bold py-2" id="btn-run-symptom-check">
+                      <i class="bi bi-magic me-1"></i> Check Urgency & Recommended Facility
+                    </button>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="h-100 p-3 bg-white rounded-3 border d-flex flex-column justify-content-center" id="symptom-result-box">
+                    <div class="text-center text-muted py-5">
+                      <i class="bi bi-clipboard2-pulse fs-1 text-secondary opacity-50 mb-2"></i>
+                      <div class="fw-semibold">No symptoms checked yet</div>
+                      <div class="small">Select your chief symptom on the left to receive immediate facility triage.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 7: PHC & BED AVAILABILITY
+             ==================================================================== -->
+        <section id="section-beds" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header d-flex justify-content-between align-items-center">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-hospital me-2 text-primary"></i>Primary Health Centre (PHC) & Bed Directory</h2>
+                <small class="text-muted">Live bed occupancy, doctor on duty, ambulance availability, and contact numbers</small>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              
+              <!-- Filter Controls -->
+              <div class="filter-bar mb-3">
+                <div class="row g-2 w-100">
+                  <div class="col-12 col-md-4">
+                    <input type="text" class="form-control form-control-sm" id="search-phc-query" placeholder="Search PHC name, block, village...">
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <select class="form-select form-select-sm" id="filter-phc-type">
+                      <option value="">All Facility Types</option>
+                      <option value="PHC">Primary Health Centre (PHC)</option>
+                      <option value="CHC">Community Health Centre (CHC)</option>
+                      <option value="Sub-centre">Health Sub-centre</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <select class="form-select form-select-sm" id="filter-phc-doctor">
+                      <option value="">All Doctor Status</option>
+                      <option value="true">Doctor Available Now</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-2">
+                    <select class="form-select form-select-sm" id="filter-phc-amb">
+                      <option value="">All Ambulances</option>
+                      <option value="true">Ambulance Ready</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PHC Cards List -->
+              <div class="row g-3" id="phc-cards-container">
+                <div class="col-12 text-center py-4 text-muted small">
+                  <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                  Loading Primary Health Centres...
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 8: INDIA OUTBREAK MAP (EPICLIM)
+             ==================================================================== -->
+        <section id="section-map" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header d-flex justify-content-between align-items-center">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-map me-2 text-primary"></i>National Outbreak Heat Map (IDSP / EpiClim)</h2>
+                <small class="text-muted">Interactive geospatial density from 8,974 historical epidemiological records (2009–2022)</small>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              
+              <div class="filter-bar mb-3">
+                <div class="row g-2 w-100">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Disease Filter</label>
+                    <select class="form-select form-select-sm" id="map-disease-filter">
+                      <option value="all">All Tracked Diseases</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Historical Year</label>
+                    <select class="form-select form-select-sm" id="map-year-filter">
+                      <option value="all">All Years Cumulative (2009-2022)</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-4 d-flex align-items-end">
+                    <button class="btn btn-sm btn-outline-secondary w-100" id="btn-reset-map-view">
+                      <i class="bi bi-arrows-fullscreen me-1"></i> Reset India Extent
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border rounded-3 overflow-hidden" style="height: 500px;">
+                <div id="india-map" style="height: 100%; width: 100%;"></div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 9: DISEASE TRENDS & ANALYTICS
+             ==================================================================== -->
+        <section id="section-trends" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Epidemiological Trends & Transmission Graphs</h2>
+                <small class="text-muted">Time-series case velocity, recovery curves, and disease categorization</small>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              
+              <div class="row g-4">
+                <div class="col-12 col-lg-8">
+                  <div class="p-3 border rounded-3 bg-white">
+                    <h3 class="h6 fw-bold mb-3">Clinical Admissions vs Recoveries (30-Day Trend)</h3>
+                    <div style="height: 320px;">
+                      <canvas id="trendChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                  <div class="p-3 border rounded-3 bg-white">
+                    <h3 class="h6 fw-bold mb-3">Cases by Disease Category</h3>
+                    <div style="height: 320px;">
+                      <canvas id="categoryChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 10: WEATHER TELEMETRY & VECTOR RISK
+             ==================================================================== -->
+        <section id="section-weather" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-cloud-sun me-2 text-primary"></i>Environmental Telemetry & Vector Breeding Risk</h2>
+                <small class="text-muted">Correlating rainfall, temperature, and humidity with vector-borne disease outbreaks</small>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              
+              <div class="row g-3 mb-4" id="weather-cards-row">
+                <!-- Weather metrics dynamically populated -->
+                <div class="col-12 col-md-4">
+                  <div class="p-3 bg-light rounded-3 border">
+                    <div class="text-muted small">Temperature</div>
+                    <div class="h3 fw-bold mb-0 text-dark" id="weather-temp">-- °C</div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="p-3 bg-light rounded-3 border">
+                    <div class="text-muted small">Relative Humidity</div>
+                    <div class="h3 fw-bold mb-0 text-primary" id="weather-humidity">-- %</div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="p-3 bg-light rounded-3 border">
+                    <div class="text-muted small">Weekly Rainfall</div>
+                    <div class="h3 fw-bold mb-0 text-info" id="weather-rainfall">-- mm</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-3 border rounded-3 bg-white">
+                <h3 class="h6 fw-bold mb-3">Weather vs Vector-Borne Cases (Correlation Analysis)</h3>
+                <div style="height: 300px;">
+                  <canvas id="weatherVsCasesChart"></canvas>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 11: CITIZEN COMPLAINTS
+             ==================================================================== -->
+        <section id="section-complaints" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-megaphone me-2 text-primary"></i>Citizen Grievance & Village Health Feedback</h2>
+                <small class="text-muted">Submit reports on medicine stockouts, sub-centre closures, water contamination, or fogging requests</small>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                  <form id="complaint-form">
+                    <div class="mb-3">
+                      <label for="complaint-city" class="form-label small fw-semibold text-muted">Village / Block / Town</label>
+                      <input type="text" class="form-control" id="complaint-city" placeholder="e.g. Otur, Bilkisganj, Neora..." required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="complaint-desc" class="form-label small fw-semibold text-muted">Describe the Grievance or Healthcare Issue</label>
+                      <textarea class="form-control" id="complaint-desc" rows="4" placeholder="Detail any urgent village health issues, e.g. contaminated borewell, PHC staff unavailable..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4" id="btn-submit-complaint">
+                      Submit Feedback / शिकायत दर्ज करें
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SECTION 12: DOWNLOADABLE REPORTS
+             ==================================================================== -->
+        <section id="section-reports" class="portal-section d-none">
+          <div class="hw-card mb-4">
+            <div class="hw-card-header">
+              <div>
+                <h2 class="h6 mb-0 fw-bold"><i class="bi bi-file-earmark-arrow-down me-2 text-primary"></i>Downloadable Health & PHC Reports</h2>
+                <small class="text-muted">Export verified surveillance data and primary health centre capacity audits</small>
+              </div>
+            </div>
+            <div class="hw-card-body">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <div class="p-3 border rounded-3 bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-bold">PHC Bed Availability Directory (CSV)</div>
+                      <small class="text-muted">Live inventory of beds, doctors, and ambulance readiness</small>
+                    </div>
+                    <a href="/api/reports/hospitals/csv" class="btn btn-sm btn-outline-primary" download>
+                      <i class="bi bi-download me-1"></i> Download CSV
+                    </a>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="p-3 border rounded-3 bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-bold">EpiClim Outbreak Time-Series (CSV)</div>
+                      <small class="text-muted">National district-level communicable disease records</small>
+                    </div>
+                    <a href="/api/reports/cases/csv" class="btn btn-sm btn-outline-primary" download>
+                      <i class="bi bi-download me-1"></i> Download CSV
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       EMERGENCY 108 MODAL
+       ========================================================================== -->
+  <div class="modal fade" id="modal-emergency" tabindex="-1" aria-labelledby="modalEmergencyLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title h6 fw-bold" id="modalEmergencyLabel">
+            <i class="bi bi-telephone-fill me-2"></i> EMERGENCY MEDICAL ASSISTANCE (108 / 102)
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 text-center">
+          <div class="danger-modal-icon mb-3">
+            <i class="bi bi-heart-pulse-fill"></i>
+          </div>
+          <h4 class="h5 fw-bold text-danger mb-1">Need Immediate Emergency Help?</h4>
+          <p class="text-muted small mb-4">Toll-free emergency ambulances are available 24x7 across all rural blocks.</p>
+
+          <div class="row g-2 mb-4">
+            <div class="col-6">
+              <a href="tel:108" class="btn btn-danger btn-lg w-100 fw-bold py-3 shadow">
+                <i class="bi bi-telephone-fill me-1"></i> Call 108
+                <div class="small fw-normal" style="font-size: 0.75rem;">General Ambulance</div>
+              </a>
+            </div>
+            <div class="col-6">
+              <a href="tel:102" class="btn btn-outline-danger btn-lg w-100 fw-bold py-3 shadow-sm">
+                <i class="bi bi-telephone-fill me-1"></i> Call 102
+                <div class="small fw-normal" style="font-size: 0.75rem;">Janani Express (Maternal)</div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Nearest Emergency PHC Info -->
+          <div class="p-3 bg-light rounded-3 border text-start">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-bold small text-dark"><i class="bi bi-hospital me-1 text-primary"></i>Closest Rural Emergency Centre</span>
+              <span class="badge bg-success">24x7 Active</span>
+            </div>
+            <div class="fw-semibold text-dark" id="emergency-phc-name">Otur Primary Health Centre</div>
+            <div class="small text-muted mb-2" id="emergency-phc-loc">Junnar Block, Pune Rural (Dist: 0.6 km)</div>
+            <div class="d-flex gap-2">
+              <a href="tel:02132264210" class="btn btn-sm btn-outline-success fw-bold flex-grow-1" id="emergency-phc-call">
+                <i class="bi bi-telephone me-1"></i> Call PHC Direct
+              </a>
+              <a href="https://maps.google.com" target="_blank" class="btn btn-sm btn-outline-primary fw-bold" id="emergency-phc-nav">
+                <i class="bi bi-signpost-2 me-1"></i> Directions
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light justify-content-center">
+          <small class="text-muted">In case of snakebite, keep patient still and transport immediately to CHC/PHC with ASV vials.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MEDICINE FALLBACK MODAL (Out of Stock -> Where Next?)
+       ========================================================================== -->
+  <div class="modal fade" id="modal-medicine-fallback" tabindex="-1" aria-labelledby="modalMedFallbackLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content shadow">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title h6 fw-bold" id="modalMedFallbackLabel">
+            <i class="bi bi-geo-alt-fill me-2 text-danger"></i> Alternative Stock Finder: <span id="fallback-medicine-name"></span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <!-- Safety Note Alert: ALWAYS SHOWN -->
+          <div class="alert alert-warning border-warning d-flex align-items-center mb-4 shadow-sm" role="alert">
+            <i class="bi bi-shield-exclamation fs-3 me-3 text-warning"></i>
+            <div>
+              <strong class="d-block mb-1">Safety Note / सुरक्षा सूचना:</strong>
+              <span data-i18n="med.safety_note">Ask the doctor or pharmacist before changing any medicine.</span>
+            </div>
+          </div>
+
+          <!-- Section 1: Other Nearby PHCs with Stock -->
+          <div class="mb-4">
+            <h6 class="fw-bold text-dark d-flex align-items-center">
+              <i class="bi bi-hospital me-2 text-primary"></i> <span data-i18n="med.other_phcs">Available at Nearby PHCs</span>
+            </h6>
+            <div id="fallback-other-phcs-list" class="row g-2 mt-1">
+              <div class="col-12 text-muted small">Loading other facilities...</div>
+            </div>
+          </div>
+
+          <!-- Section 2: Same Centre Alternatives -->
+          <div class="mb-4" id="fallback-same-centre-container">
+            <h6 class="fw-bold text-dark d-flex align-items-center">
+              <i class="bi bi-arrow-repeat me-2 text-success"></i> <span data-i18n="med.same_centre_alt">Same Centre Alternatives</span>
+            </h6>
+            <div id="fallback-same-centre-list" class="row g-2 mt-1"></div>
+          </div>
+
+          <!-- Section 3: Jan Aushadhi Kendra (Generic Stores) -->
+          <div>
+            <h6 class="fw-bold text-dark d-flex align-items-center">
+              <i class="bi bi-shop me-2 text-teal" style="color: #0d9488;"></i> <span data-i18n="med.jan_aushadhi">Jan Aushadhi Kendra (Generic)</span> <span class="badge bg-secondary ms-2 font-monospace">Sample</span>
+            </h6>
+            <div id="fallback-jan-aushadhi-list" class="row g-2 mt-1">
+              <div class="col-12 text-muted small">Loading low-cost generic stores...</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       DOCTOR PRESENCE FEEDBACK MODAL
+       ========================================================================== -->
+  <div class="modal fade" id="modal-doctor-feedback" tabindex="-1" aria-labelledby="modalFeedbackLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title h6 fw-bold" id="modalFeedbackLabel">
+            <i class="bi bi-chat-heart me-2"></i> Visit Feedback / अनुभव साझा करें
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <div class="text-muted small">Primary Health Centre:</div>
+            <strong class="fs-6 text-dark" id="feedback-phc-name-display">--</strong>
+          </div>
+
+          <!-- Card 1: Was the doctor there? -->
+          <div class="card p-3 mb-3 border bg-light shadow-sm">
+            <label class="form-label fw-bold text-dark mb-2">
+              <i class="bi bi-person-check-fill text-primary me-1"></i> <span data-i18n="fb.doctor_q">Was the doctor there?</span>
+            </label>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-success flex-grow-1 fw-bold py-2 btn-feedback-doc" data-value="YES">
+                <i class="bi bi-check-circle-fill me-1"></i> <span data-i18n="fb.yes">Yes</span>
+              </button>
+              <button type="button" class="btn btn-outline-danger flex-grow-1 fw-bold py-2 btn-feedback-doc" data-value="NO">
+                <i class="bi bi-x-circle-fill me-1"></i> <span data-i18n="fb.no">No</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 2: Was the medicine available? -->
+          <div class="card p-3 mb-4 border bg-light shadow-sm">
+            <label class="form-label fw-bold text-dark mb-2">
+              <i class="bi bi-capsule text-primary me-1"></i> <span data-i18n="fb.medicine_q">Was the medicine available?</span>
+            </label>
+            <div class="row g-2">
+              <div class="col-6">
+                <button type="button" class="btn btn-outline-success w-100 fw-bold py-2 btn-feedback-med" data-value="YES">
+                  <span data-i18n="fb.yes">Yes</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button type="button" class="btn btn-outline-warning text-dark w-100 fw-bold py-2 btn-feedback-med" data-value="PARTIAL">
+                  <span data-i18n="fb.partial">Partly</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button type="button" class="btn btn-outline-danger w-100 fw-bold py-2 btn-feedback-med" data-value="NO">
+                  <span data-i18n="fb.no">No</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2 btn-feedback-med active" data-value="NOT_NEEDED">
+                  <span data-i18n="fb.not_needed">Did not need</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-text small text-muted mb-3">
+            <i class="bi bi-shield-lock me-1"></i>Anonymous and rate-limited. Maximum 1 report per day per visitor device.
+          </div>
+
+          <button type="button" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" id="btn-submit-doctor-feedback">
+            <i class="bi bi-send-fill me-1"></i> Submit Report
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       PHC MEDICINES & PHARMACY STOCK MODAL
+       ========================================================================== -->
+  <div class="modal fade" id="modal-phc-medicines" tabindex="-1" aria-labelledby="modalPhcMedLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content shadow">
+        <div class="modal-header bg-teal text-white" style="background-color: #0d9488;">
+          <h5 class="modal-title h6 fw-bold" id="modalPhcMedLabel">
+            <i class="bi bi-capsule me-2"></i> Pharmacy Stock: <span id="phc-med-modal-facility"></span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Medicine Name</th>
+                  <th>Composition / Salt</th>
+                  <th>Strength</th>
+                  <th>Stock Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="phc-med-modal-tbody">
+                <tr><td colspan="5" class="text-center py-4 text-muted">Loading medicines...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer bg-light justify-content-between">
+          <small class="text-muted"><span data-i18n="med.safety_note">Ask the doctor or pharmacist before changing any medicine.</span></small>
+          <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts: Bootstrap, Leaflet, Chart.js, API, i18n, Controller -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/public-dashboard.js"></script>
+</body>
+</html>

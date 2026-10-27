@@ -1,0 +1,630 @@
+/* ==============================================================================
+   HealthWatch AI - Core Design System & Styling
+   Modern, responsive aesthetics using Bootstrap 5 + custom CSS tokens
+   ============================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Primary Palette */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+
+  /* Accent & Status */
+  --accent-teal: #0d9488;
+  --accent-cyan: #06b6d4;
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+
+  /* Neutrals */
+  --sidebar-bg: #0f172a;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #2563eb;
+  --body-bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+
+  /* Elevations */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--body-bg);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ==============================================================================
+   Login Page Specific Styling
+   ============================================================================== */
+.login-body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top right, #1e3a8a, #0f172a 65%);
+  padding: 2rem 1rem;
+}
+
+.login-card {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.login-header-banner {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0d9488 100%);
+  color: white;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.login-icon-badge {
+  width: 68px;
+  height: 68px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  border-radius: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.demo-account-chip {
+  cursor: pointer;
+  border: 1px dashed var(--border-color);
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.demo-account-chip:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-500);
+  transform: translateY(-1px);
+}
+
+/* ==============================================================================
+   Dashboard Layout (Sidebar + Main Content)
+   ============================================================================== */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  width: 270px;
+  background-color: var(--sidebar-bg);
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header {
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+}
+
+.sidebar-nav {
+  padding: 1rem 0.75rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  padding: 0.75rem 0.75rem 0.35rem 0.75rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  border-radius: 0.65rem;
+  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-link i {
+  font-size: 1.15rem;
+  width: 22px;
+  text-align: center;
+}
+
+.sidebar-link:hover {
+  color: #ffffff;
+  background-color: var(--sidebar-hover);
+}
+
+.sidebar-link.active {
+  color: #ffffff;
+  background-color: var(--primary-600);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.sidebar-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ==============================================================================
+   Main Content Area & Topbar
+   ============================================================================== */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-topbar {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.85rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 990;
+  box-shadow: var(--shadow-sm);
+}
+
+.app-content {
+  padding: 1.75rem;
+  flex: 1;
+}
+
+/* ==============================================================================
+   Cards & UI Components
+   ============================================================================== */
+.hw-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+  margin-bottom: 1.5rem;
+}
+
+.hw-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.hw-card-header {
+  padding: 1.15rem 1.35rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hw-card-body {
+  padding: 1.35rem;
+}
+
+/* KPI Metric Cards */
+.kpi-card {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: white;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.kpi-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.kpi-blue { background: #dbeafe; color: #1d4ed8; }
+.kpi-green { background: #d1fae5; color: #047857; }
+.kpi-amber { background: #fef3c7; color: #b45309; }
+.kpi-red { background: #fee2e2; color: #b91c1c; }
+.kpi-purple { background: #ede9fe; color: #6d28d9; }
+
+/* Status Badges */
+.badge-soft-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+}
+
+.badge-soft-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+}
+
+.badge-soft-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+}
+
+.badge-soft-primary {
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+}
+
+/* Toast container */
+#toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 2000;
+}
+
+/* Leaflet Map */
+#india-map {
+  height: 480px;
+  width: 100%;
+  border-radius: 0.85rem;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font-body);
+}
+
+/* Custom Progress Bars for Bed Availability */
+.progress-bed {
+  height: 8px;
+  border-radius: 999px;
+  background-color: #f1f5f9;
+  overflow: hidden;
+}
+
+.progress-bed-bar-green {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.progress-bed-bar-amber {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.progress-bed-bar-red {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+/* Pulse animation for critical alerts */
+@keyframes pulse-critical {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.alert-pulse-critical {
+  animation: pulse-critical 2s infinite ease-in-out;
+  border-left: 5px solid #dc2626 !important;
+}
+
+.alert-pulse-warning {
+  border-left: 5px solid #f59e0b !important;
+}
+
+/* Friendly Empty State */
+.empty-state-box {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  color: #cbd5e1;
+  margin-bottom: 0.75rem;
+}
+
+/* Hospital Card Grid View */
+.hospital-grid-card {
+  border-radius: 0.85rem;
+  border: 1px solid var(--border-color);
+  background: white;
+  transition: all 0.2s ease;
+  height: 100%;
+}
+
+.hospital-grid-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: #cbd5e1;
+}
+
+/* Section Smooth Visibility */
+.portal-section {
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .app-sidebar {
+    position: fixed;
+    left: -270px;
+    height: 100vh;
+  }
+  .app-sidebar.show {
+    left: 0;
+  }
+  #india-map {
+    height: 360px;
+  }
+}
+
+/* ==============================================================================
+   Admin Portal Custom UI Components
+   ============================================================================== */
+.table-custom {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.table-custom thead th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.table-custom tbody td {
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.table-custom tbody tr:hover td {
+  background-color: #f8fafc;
+}
+
+.action-btn-group {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.btn-action {
+  padding: 0.28rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-action:hover {
+  transform: translateY(-1px);
+}
+
+.modal-content {
+  border-radius: 1.15rem;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.modal-header {
+  background-color: #f8fafc;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.15rem 1.4rem;
+}
+
+.modal-footer {
+  background-color: #f8fafc;
+  border-top: 1px solid var(--border-color);
+  padding: 0.95rem 1.4rem;
+}
+
+.filter-bar {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 0.85rem;
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.filter-bar .form-control,
+.filter-bar .form-select {
+  border-radius: 0.6rem;
+  font-size: 0.88rem;
+}
+
+.stored-proc-banner {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.82rem;
+  color: #1e40af;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.danger-modal-icon {
+  width: 58px;
+  height: 58px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.85rem;
+  margin-bottom: 1rem;
+}
+
+/* ==============================================================================
+   Rural Care Connect: Low Bandwidth, Accessibility & Emergency Styles
+   ============================================================================== */
+.btn-emergency {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white !important;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
+  animation: pulse-emergency 2s infinite;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-emergency:hover {
+  background: #991b1b;
+  transform: scale(1.03);
+}
+
+@keyframes pulse-emergency {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.badge-free {
+  background: #16a34a;
+  color: white;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.scheme-tag {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Low-Bandwidth Mode */
+body.low-bandwidth {
+  font-size: 1.05rem;
+  background: #f8fafc;
+}
+
+body.low-bandwidth * {
+  animation: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+body.low-bandwidth .card,
+body.low-bandwidth .stat-card,
+body.low-bandwidth .hospital-grid-card {
+  border: 2px solid #334155 !important;
+  background: #ffffff !important;
+}
+
+body.low-bandwidth .btn {
+  border-width: 2px;
+  font-weight: 700;
+  padding: 0.6rem 1.1rem;
+}
+
+body.low-bandwidth .app-sidebar {
+  background: #0f172a !important;
+}
+
